@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>WebGL Demo</title>
+    <link rel="stylesheet" href="./webgl.css" type="text/css">
+
+    <script 
+//    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+      crossorigin="anonymous" defer>
+    </script>
+    <script src="loaddata.js" ></script>
+    <script src="webgl-demo.js" defer></script>
+
+  </head>
+
+
+  <body>
+      
+<input type="file" onchange="readFile(this)">
+<script>
+function readFile(input) {
+  let file = input.files[0];
+
+  let reader = new FileReader();
+
+  reader.readAsText(file);
+
+  reader.onload = function() {
+	// split text file input into multiple lines (strings)
+    const lines = reader.result.split('\n');
+
+	// retrieve width and height data from pgm file
+    const dim = lines[2].split(" ");
+    imageWidth = dim[0];
+    imageHeight = dim[1];
+
+	// retrieve pixel depth from pgm file
+    imageDepth = lines[3];
+
+	// read image data from pgm file
+	// and store in the imageData array
+    for (let i=0; i<imageHeight; i++) {
+       for (let j=0; j<imageWidth; j++) {
+          //console.log(lines[i*imageWidth + j + 4]);
+          imageData.push([i, j, lines[i*imageWidth + j + 4] ] );
+       }
+    }
+	// build geometry from the input file
+    initGeometry();
+	// indicate that the geometry has been loaded and can be drawn
+    loaded = true;
+	// start WebGL
+    initAll();
+  };
+
+  reader.onerror = function() {
+    console.log(reader.error);
+  };
+
+}
+</script>
+
+
+    <canvas id="glcanvas" width="640" height="480"></canvas>
+  </body>
+
+</html>
