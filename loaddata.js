@@ -34,30 +34,120 @@ let vertexCount = 0; 	// number of vertices, not individual values
 	// the data from the input file is in the imageData[] array 
 	// your code goes here
 function initGeometry() {
-	let height = imageData.length;
-	let width = imageData[0].length - 1;
+	let height = getHeight();
+	let width = getWidth();
 
-	console.log(imageData); //delete
 
 	// pick the larger of height or width and use that to calculate
 	//    x and z step size
 	// calculate step size for x and z values
 	let stepSize = getStepSize(height,width);
-
-	// calculate vertex array for height map
-	for(let row = 0; row < height; row++){
-		// x value
-		vertices.push(imageData[row][0] * stepSize);
-
-		// y value
-		vertices.push((imageData[row][width + 1] / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
-		
-		// z value
-		vertices.push(imageData[row][1] * stepSize);
-	}
 	
+	for(let row = 0; row < height; row++){
+		for(let col = 0; col < width; col++) {
+			// calculate vertex array for height map
+			
+		// triangle 1
+			// x1 value
+			vertices.push(row / stepSize);
+			// y1 value
+			vertices.push((parseFloat(getFromArray(row,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
+			// z1 value
+			vertices.push(col / stepSize);
+
+			// x2 value
+			vertices.push((row + 1) / stepSize);
+			// y2 value
+			vertices.push((parseFloat(getFromArray(row+1,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
+			// z2 value
+			vertices.push(col / stepSize);
+
+			// x3 value
+			vertices.push((row + 1) / stepSize);
+			// y3 value
+			vertices.push((parseFloat(getFromArray(row+1,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
+			// z3 value
+			vertices.push((col + 1) / stepSize);
+
+		// triangle 2
+			// x1 value
+			vertices.push(row / stepSize);
+			// y1 value
+			vertices.push((parseFloat(getFromArray(row,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
+			// z1 value
+			vertices.push(col / stepSize);
+
+			// x2 value
+			vertices.push((row + 1) / stepSize);
+			// y2 value
+			vertices.push((parseFloat(getFromArray(row+1,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
+			// z2 value
+			vertices.push((col + 1) / stepSize);
+
+			// x3 value
+			vertices.push(row / stepSize);
+			// y3 value
+			vertices.push((parseFloat(getFromArray(row,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
+			// z3 value
+			vertices.push((col + 1) / stepSize);
+		}
+	}	
+
+	//TODO DELETE
+	console.log(imageData); 
+	console.log(vertices);
+	console.log(vertices.length);
+	//
+
 
 	// calculate normals for height map
+	for(let i = 0; i < vertices.length; i += 9){
+		// get 3 vertices
+		let vertice1x = vertices[i];
+		let vertice1y = vertices[i+1];
+		let vertice1z = vertices[i+2];
+
+		let vertice2x = vertices[i+3];
+		let vertice2y = vertices[i+4];
+		let vertice2z = vertices[i+5];
+
+		let vertice3x = vertices[i+6];
+		let vertice3y = vertices[i+5];
+		let vertice3z = vertices[i+8];
+		
+		let vector1 = [(vertice1x - vertice2x), (vertice1y - vertice2y), (vertice1z - vertice2z)];
+		let vector2 = [(vertice3x - vertice2x), (vertice3y - vertice2y), (vertice3z - vertice2z)];
+
+		/*let crossProduct = ([((vector1[1] * vector2[2]) - (vector1[2] * vector2[1])), 
+							 ((vector1[2] * vector2[0]) - (vector1[0] * vector2[2])), 
+							 ((vector1[0] * vector2[1]) - (vector1[1] * vector2[0]))]);
+		
+		console.log(crossProduct);*/
+		
+		normals.push((vector1[1] * vector2[2]) - (vector1[2] * vector2[1]));
+		normals.push((vector1[2] * vector2[0]) - (vector1[0] * vector2[2]));
+		normals.push((vector1[0] * vector2[1]) - (vector1[1] * vector2[0]));
+		indices.push(0);
+	indices.push(1);
+	indices.push(2);
+
+		normals.push((vector1[1] * vector2[2]) - (vector1[2] * vector2[1]));
+		normals.push((vector1[2] * vector2[0]) - (vector1[0] * vector2[2]));
+		normals.push((vector1[0] * vector2[1]) - (vector1[1] * vector2[0]));
+		indices.push(0);
+	indices.push(1);
+	indices.push(2);
+
+		normals.push((vector1[1] * vector2[2]) - (vector1[2] * vector2[1]));
+		normals.push((vector1[2] * vector2[0]) - (vector1[0] * vector2[2]));
+		normals.push((vector1[0] * vector2[1]) - (vector1[1] * vector2[0]));
+		indices.push(0);
+	indices.push(1);
+	indices.push(2);
+	}
+		
+
+	
 
 
 	// set the vertexCount equal to the number of vertices
@@ -82,18 +172,46 @@ function initGeometry() {
 
 }
 
+function getFromArray(x,z) {
+	for(let row = 0; row < imageData.length; row++){
+		if(imageData[row][0] == x && imageData[row][1] == z) {
+			return imageData[row][2];
+		}
+	}
+
+	return 0;
+}
+
+function getHeight() {
+	let max = 0;
+
+	for(let row = 0; row < imageData.length; row++) {
+		if(imageData[row][0] > max) {
+			max = imageData[row][0];
+		}
+	}
+
+	return max;
+}
+
+function getWidth() {
+	let max = 0;
+
+	for(let row = 0; row < imageData.length; row++) {
+		if(imageData[row][0] > max) {
+			max = imageData[row][1];
+		}
+	}
+
+	return max;
+}
+
 function getStepSize(height, width) {
 	if(height > width)
 		return 1.0 / height;
 	else
 		return 1.0 / width;
 }
-
-
-/* you don't need to change anything past this point
-   the following functions return the geometry information
-*/
-
 
 	// return the number of indices in the object
 	// this should match the number of values in the indices[] array
