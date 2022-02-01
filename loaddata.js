@@ -43,22 +43,18 @@ function initGeometry() {
 	// calculate normals for height map
 	calculateNormals();
 
-
 	//TODO DELETE
 	console.log(imageData); 
 	console.log(vertices);
-	console.log(vertices.length);
-	//
-
-indices.push(0);
-indices.push(1);
-indices.push(2);
-indices.push(0);
-indices.push(2);
-indices.push(3);
-	// set the vertexCount equal to the number of vertices
+	console.log("Vertices length: " + vertices.length);
+	console.log(normals);
+	console.log("Normals length: " + normals.length);
+	console.log(indices);
+	console.log("Indices length: " + indices.length);
+	
+	// set the vertexCount equal to the number of indices
 	vertexCount = indices.length;
-
+	
 	// create the indices[] array 
 	// if vertices[] contains all of the values generated from the
 	//    image (including duplicates) then the number of indices is the
@@ -70,12 +66,9 @@ indices.push(3);
 	
 	// load textures coordinates, currently use same texture for colour
 	//    for all points
-	let numberIndices = indices.length;
-
-    for (let i=0; i<(numberIndices/3); i++) {
+    for (let i=0; i<(indices.length/3); i++) {
        textureCoords.push(0.0,0.0,  1.0,0.0,   1.0,1.0,);
     }
-
 }
 
 function getHeight() {
@@ -112,52 +105,66 @@ function getStepSize(height, width) {
 function calculateVertices(height,width) {
 	// calculate step size for x and z values
 	let stepSize = getStepSize(height,width);
+	let index = 0;
 
 	for(let row = 0; row < height; row++){
 		for(let col = 0; col < width; col++) {	
 		// triangle 1
 			// x1 value
-			vertices.push(row / stepSize);
+			vertices.push((row * stepSize) - 0.5);
 			// y1 value
 			vertices.push((parseFloat(getFromArray(row,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
 			// z1 value
-			vertices.push(col / stepSize);
+			vertices.push((col * stepSize) - 0.5);
+
+			indices.push(index + 0);
 
 			// x2 value
-			vertices.push(row / stepSize);
+			vertices.push((row * stepSize) - 0.5);
 			// y2 value
 			vertices.push((parseFloat(getFromArray(row,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
 			// z2 value
-			vertices.push((col + 1) / stepSize);
+			vertices.push(((col + 1) * stepSize) - 0.5);
+
+			indices.push(index + 1);
 
 			// x3 value
-			vertices.push((row + 1) / stepSize);
+			vertices.push(((row + 1) * stepSize) - 0.5);
 			// y3 value
 			vertices.push((parseFloat(getFromArray(row+1,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
 			// z3 value
-			vertices.push((col + 1) / stepSize);
+			vertices.push(((col + 1) * stepSize) - 0.5);
+
+			indices.push(index + 2);
 
 		// triangle 2
 			// x1 value
-			vertices.push((row + 1) / stepSize);
+			vertices.push(((row + 1) * stepSize) - 0.5);
 			// y1 value
 			vertices.push((parseFloat(getFromArray(row+1,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
 			// z1 value
-			vertices.push((col + 1) / stepSize);
+			vertices.push(((col + 1) * stepSize) - 0.5);
+
+			indices.push(index + 3);
 
 			// x2 value
-			vertices.push((row + 1) / stepSize);
+			vertices.push(((row + 1) * stepSize) - 0.5);
 			// y2 value
 			vertices.push((parseFloat(getFromArray(row+1,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
 			// z2 value
-			vertices.push(col / stepSize);
+			vertices.push((col * stepSize - 0.5));
+
+			indices.push(index + 4);
 
 			// x3 value
-			vertices.push(row / stepSize);
+			vertices.push((row * stepSize) - 0.5);
 			// y3 value
 			vertices.push((parseFloat(getFromArray(row,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
 			// z3 value
-			vertices.push(col / stepSize);
+			vertices.push((col * stepSize) - 0.5);
+
+			indices.push(index + 5);	
+			index += 3;
 		}
 	}	
 }
@@ -174,45 +181,54 @@ function getFromArray(x,z) {
 
 function calculateNormals() {
 	for(let i = 0; i < vertices.length; i += 9){
-	// get 3 vertices
-	let vertice1x = vertices[i];
-	let vertice1y = vertices[i+1];
-	let vertice1z = vertices[i+2];
+		// get 3 vertices
+		let vertice1x = vertices[i];
+		let vertice1y = vertices[i+1];
+		let vertice1z = vertices[i+2];
 
-	let vertice2x = vertices[i+3];
-	let vertice2y = vertices[i+4];
-	let vertice2z = vertices[i+5];
+		let vertice2x = vertices[i+3];
+		let vertice2y = vertices[i+4];
+		let vertice2z = vertices[i+5];
 
-	let vertice3x = vertices[i+6];
-	let vertice3y = vertices[i+7];
-	let vertice3z = vertices[i+8];
-	
-	let vector1 = [(vertice1x - vertice2x), (vertice1y - vertice2y), (vertice1z - vertice2z)];
-	let vector2 = [(vertice3x - vertice2x), (vertice3y - vertice2y), (vertice3z - vertice2z)];
+		let vertice3x = vertices[i+6];
+		let vertice3y = vertices[i+7];
+		let vertice3z = vertices[i+8];
+		
+		// create two vectors from the vertices
+		let vector1 = [(vertice1x - vertice2x), (vertice1y - vertice2y), (vertice1z - vertice2z)];
+		let vector2 = [(vertice3x - vertice2x), (vertice3y - vertice2y), (vertice3z - vertice2z)];
 
-	let crossProduct = ([((vector1[1] * vector2[2]) - (vector1[2] * vector2[1])), 
-						 ((vector1[2] * vector2[0]) - (vector1[0] * vector2[2])), 
-						 ((vector1[0] * vector2[1]) - (vector1[1] * vector2[0]))]);
+		// calculate the cross product
+		let crossProduct = ([((vector1[1] * vector2[2]) - (vector1[2] * vector2[1])), 
+							 ((vector1[2] * vector2[0]) - (vector1[0] * vector2[2])), 
+							 ((vector1[0] * vector2[1]) - (vector1[1] * vector2[0])) ]);
 
-	let crossProductLength = Math.sqrt((crossProduct[0] * crossProduct[0]) + 
-									   (crossProduct[1] * crossProduct[1]) + 
-									   (crossProduct[2] * crossProduct[2]));
-	
-	crossProduct[0] /= crossProductLength;
-	crossProduct[1] /= crossProductLength;
-	crossProduct[2] /= crossProductLength;
-	
-	normals.push(crossProduct[0]);
-	normals.push(crossProduct[1]);
-	normals.push(crossProduct[2]);
+		// use Pythagorean theorem to calculate length
+		let crossProductLength = Math.sqrt((crossProduct[0] * crossProduct[0]) + 
+										   (crossProduct[1] * crossProduct[1]) + 
+										   (crossProduct[2] * crossProduct[2]) );
+		
+		// divide cross product by the length to convert it to a unit normal
+		crossProduct[0] /= crossProductLength;
+		crossProduct[1] /= crossProductLength;
+		crossProduct[2] /= crossProductLength;
+		console.log(crossProductLength);
+		crossProduct[0] *= -1;
+		crossProduct[1] *= -1;
+		crossProduct[2] *= -1;
 
-	normals.push(crossProduct[0]);
-	normals.push(crossProduct[1]);
-	normals.push(crossProduct[2]);
+		//add to normals array for each vertice
+		normals.push(crossProduct[0]);
+		normals.push(crossProduct[1]);
+		normals.push(crossProduct[2]);
 
-	normals.push(crossProduct[0]);
-	normals.push(crossProduct[1]);
-	normals.push(crossProduct[2]);
+		normals.push(crossProduct[0]);
+		normals.push(crossProduct[1]);
+		normals.push(crossProduct[2]);
+
+		normals.push(crossProduct[0]);
+		normals.push(crossProduct[1]);
+		normals.push(crossProduct[2]);
 	}
 }
 
