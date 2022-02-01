@@ -55,22 +55,14 @@ function initGeometry() {
 	// set the vertexCount equal to the number of indices
 	vertexCount = indices.length;
 	
-	// create the indices[] array 
-	// if vertices[] contains all of the values generated from the
-	//    image (including duplicates) then the number of indices is the
-	//    (height-1) * (width-1) of the image * the number of vertices
-	//    neede to create two triangles (6)
-	// the indices[] array will contain the values from 0 to the
-	//    number of indices - 1
-	
-	
 	// load textures coordinates, currently use same texture for colour
 	//    for all points
-    for (let i=0; i<(indices.length/3); i++) {
+    for (let i=0; i<(vertexCount/3); i++) {
        textureCoords.push(0.0,0.0,  1.0,0.0,   1.0,1.0,);
     }
 }
 
+	// finds the height
 function getHeight() {
 	let max = 0;
 
@@ -83,6 +75,7 @@ function getHeight() {
 	return max;
 }
 
+	// finds the width 
 function getWidth() {
 	let max = 0;
 
@@ -95,6 +88,7 @@ function getWidth() {
 	return max;
 }
 
+	// calculates step size
 function getStepSize(height, width) {
 	if(height > width)
 		return 1.0 / height;
@@ -102,6 +96,7 @@ function getStepSize(height, width) {
 		return 1.0 / width;
 }
 
+	// calculates all of the vertices
 function calculateVertices(height,width) {
 	// calculate step size for x and z values
 	let stepSize = getStepSize(height,width);
@@ -169,6 +164,7 @@ function calculateVertices(height,width) {
 	}	
 }
 
+	// gets y value from the imageData array for a given x and z
 function getFromArray(x,z) {
 	for(let row = 0; row < imageData.length; row++){
 		if(imageData[row][0] == x && imageData[row][1] == z) {
@@ -179,6 +175,7 @@ function getFromArray(x,z) {
 	return 0;
 }
 
+	// calculates the normals
 function calculateNormals() {
 	for(let i = 0; i < vertices.length; i += 9){
 		// get 3 vertices
@@ -212,7 +209,8 @@ function calculateNormals() {
 		crossProduct[0] /= crossProductLength;
 		crossProduct[1] /= crossProductLength;
 		crossProduct[2] /= crossProductLength;
-		console.log(crossProductLength);
+		
+		// multiply by -1
 		crossProduct[0] *= -1;
 		crossProduct[1] *= -1;
 		crossProduct[2] *= -1;
