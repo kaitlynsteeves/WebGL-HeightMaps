@@ -10,7 +10,7 @@
 
 
 	// flag indicating that data has been loaded and image can be drawn 
-let loaded = false;
+	let loaded = false;
 
     // global variables for image data, size, and depth
 	// set in the index.html file
@@ -36,7 +36,6 @@ let vertexCount = 0; 	// number of vertices, not individual values
 function initGeometry() {
 	let height = getHeight();
 	let width = getWidth();
-	console.log("H: " + height, "w: " + width);
 
 	// calculate vertex array for height map
 	calculateVertices(height,width);
@@ -50,9 +49,6 @@ function initGeometry() {
 	// set the vertexCount equal to the number of indices
 	vertexCount = indices.length;
 
-	
-	
-	
 	// load textures coordinates, currently use same texture for colour
 	//    for all points
     for (let i=0; i<(vertexCount/3); i++) {
@@ -102,72 +98,46 @@ function getMax(height, width) {
 		return width;
 }
 
-	// calculates all of the vertices
+	//calculates the vertices
 function calculateVertices(height,width) {
-	// calculate step size for x and z values
-	let stepSize = getStepSize(height,width);
 	let index = 0;
 
 	for(let row = 0; row < height; row++){
 		for(let col = 0; col < width; col++) {	
-		// triangle 1
-			// x1 value
-			vertices.push((row * stepSize) - 0.5);
-			// y1 value
-			vertices.push((parseFloat(getFromArray(row,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
-			// z1 value
-			vertices.push((col * stepSize) - 0.5);
 
+			// triangle 1
+			addToVerticesArray(row, getFromArray(row,col), col,height,width);
 			indices.push(index + 0);
 
-			// x2 value
-			vertices.push((row * stepSize) - 0.5);
-			// y2 value
-			vertices.push((parseFloat(getFromArray(row,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
-			// z2 value
-			vertices.push(((col + 1) * stepSize) - 0.5);
-
+			addToVerticesArray(row, getFromArray(row,col+1), col+1,height,width);
 			indices.push(index + 1);
 
-			// x3 value
-			vertices.push(((row + 1) * stepSize) - 0.5);
-			// y3 value
-			vertices.push((parseFloat(getFromArray(row+1,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
-			// z3 value
-			vertices.push(((col + 1) * stepSize) - 0.5);
-
+			addToVerticesArray(row+1, getFromArray(row+1,col+1), col+1,height,width);
 			indices.push(index + 2);
 
-		// triangle 2
-			// x1 value
-			vertices.push(((row + 1) * stepSize) - 0.5);
-			// y1 value
-			vertices.push((parseFloat(getFromArray(row+1,col+1)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
-			// z1 value
-			vertices.push(((col + 1) * stepSize) - 0.5);
 
+			// triangle 2
+			addToVerticesArray(row+1, getFromArray(row+1,col+1), col+1,height,width);
 			indices.push(index + 3);
 
-			// x2 value
-			vertices.push(((row + 1) * stepSize) - 0.5);
-			// y2 value
-			vertices.push((parseFloat(getFromArray(row+1,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
-			// z2 value
-			vertices.push((col * stepSize) - 0.5);
-
+			addToVerticesArray(row+1, getFromArray(row+1,col), col,height,width);
 			indices.push(index + 4);
 
-			// x3 value
-			vertices.push((row * stepSize) - 0.5);
-			// y3 value
-			vertices.push((parseFloat(getFromArray(row,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
-			// z3 value
-			vertices.push((col * stepSize) - 0.5);
+			addToVerticesArray(row, getFromArray(row,col), col,height,width);
+			indices.push(index + 5);
 
-			indices.push(index + 5);	
-			index += 3;
+			index += 6;
 		}
-	}	
+	}
+}
+
+	// adds to vertex array
+function addToVerticesArray(x, y, z, height, width) {
+	let stepSize = getStepSize(height, width);
+
+	vertices.push((x * stepSize) - 0.5 ); 
+	vertices.push((y / imageDepth) * 0.3);
+	vertices.push((z * stepSize) - 0.5 );
 }
 
 	// gets y value from the imageData array for a given x and z
@@ -224,6 +194,7 @@ function calculateSurfaceNormals() {
 		crossProduct[2] *= -1;
 
 		//add to normals array for each vertex
+
 		surfaceNormals.push(crossProduct[0]);
 		surfaceNormals.push(crossProduct[1]);
 		surfaceNormals.push(crossProduct[2]);
@@ -273,10 +244,6 @@ function calculateVertexNormals(max) {
 		normals.push(ny);
 		normals.push(nz);
 	}
-	console.log(imageData);
-	console.log(vertices);
-	console.log(surfaceNormals);
-	console.log(normals);
 }
 
 	// return the number of indices in the object
