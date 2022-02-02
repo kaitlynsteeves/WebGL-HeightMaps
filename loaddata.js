@@ -194,7 +194,6 @@ function calculateSurfaceNormals() {
 		crossProduct[2] *= -1;
 
 		//add to normals array for each vertex
-
 		surfaceNormals.push(crossProduct[0]);
 		surfaceNormals.push(crossProduct[1]);
 		surfaceNormals.push(crossProduct[2]);
