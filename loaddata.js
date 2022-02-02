@@ -36,24 +36,22 @@ let vertexCount = 0; 	// number of vertices, not individual values
 function initGeometry() {
 	let height = getHeight();
 	let width = getWidth();
+	console.log("H: " + height, "w: " + width);
 
 	// calculate vertex array for height map
 	calculateVertices(height,width);
 
-	// calculate normals for height map
-	calculateNormals();
+	// calculate surface normals for height map
+	calculateSurfaceNormals();
 
-	//TODO DELETE
-	console.log(imageData); 
-	console.log(vertices);
-	console.log("Vertices length: " + vertices.length);
-	console.log(normals);
-	console.log("Normals length: " + normals.length);
-	console.log(indices);
-	console.log("Indices length: " + indices.length);
+	// calculate vertex normals for height map
+	calculateVertexNormals(getMax(height,width));
 	
 	// set the vertexCount equal to the number of indices
 	vertexCount = indices.length;
+
+	
+	
 	
 	// load textures coordinates, currently use same texture for colour
 	//    for all points
@@ -80,7 +78,7 @@ function getWidth() {
 	let max = 0;
 
 	for(let row = 0; row < imageData.length; row++) {
-		if(imageData[row][0] > max) {
+		if(imageData[row][1] > max) {
 			max = imageData[row][1];
 		}
 	}
@@ -94,6 +92,14 @@ function getStepSize(height, width) {
 		return 1.0 / height;
 	else
 		return 1.0 / width;
+}
+
+	// gets the max of height and width
+function getMax(height, width) {
+	if(height > width)
+		return height;
+	else
+		return width;
 }
 
 	// calculates all of the vertices
@@ -147,7 +153,7 @@ function calculateVertices(height,width) {
 			// y2 value
 			vertices.push((parseFloat(getFromArray(row+1,col)) / imageDepth)*0.3); //scale y value by image depth and then again by 0.3
 			// z2 value
-			vertices.push((col * stepSize - 0.5));
+			vertices.push((col * stepSize) - 0.5);
 
 			indices.push(index + 4);
 
@@ -175,8 +181,10 @@ function getFromArray(x,z) {
 	return 0;
 }
 
-	// calculates the normals
-function calculateNormals() {
+	// calculates the surface normals
+function calculateSurfaceNormals() {
+	let surfaceNormals = [];
+
 	for(let i = 0; i < vertices.length; i += 9){
 		// get 3 vertices
 		let vertice1x = vertices[i];
@@ -215,19 +223,60 @@ function calculateNormals() {
 		crossProduct[1] *= -1;
 		crossProduct[2] *= -1;
 
-		//add to normals array for each vertice
-		normals.push(crossProduct[0]);
-		normals.push(crossProduct[1]);
-		normals.push(crossProduct[2]);
+		//add to normals array for each vertex
+		surfaceNormals.push(crossProduct[0]);
+		surfaceNormals.push(crossProduct[1]);
+		surfaceNormals.push(crossProduct[2]);
 
-		normals.push(crossProduct[0]);
-		normals.push(crossProduct[1]);
-		normals.push(crossProduct[2]);
+		surfaceNormals.push(crossProduct[0]);
+		surfaceNormals.push(crossProduct[1]);
+		surfaceNormals.push(crossProduct[2]);
 
-		normals.push(crossProduct[0]);
-		normals.push(crossProduct[1]);
-		normals.push(crossProduct[2]);
+		surfaceNormals.push(crossProduct[0]);
+		surfaceNormals.push(crossProduct[1]);
+		surfaceNormals.push(crossProduct[2]);
 	}
+
+	return surfaceNormals;
+}
+
+	// calculates the vertex normals
+function calculateVertexNormals(max) {
+	let surfaceNormals = calculateSurfaceNormals();
+	
+	for(let i = 0; i < vertices.length; i += 3){
+		let sharedNormals = [];
+
+		for(let j = i; vertices[j] <= max ; j += 3){
+			// if we find a shared vertex 
+			if(vertices[j] == vertices[i] && vertices[j+1] == vertices[i + 1] && vertices[j + 2] == vertices[i + 2]) {
+				sharedNormals.push([surfaceNormals[j],surfaceNormals[j+1],surfaceNormals[j+2]]);
+			}
+		}
+
+		// calculate average normal
+		let nx = 0;
+		let ny = 0;
+		let nz = 0;
+
+		for(let k = 0; k < sharedNormals.length; k++) {
+			nx += sharedNormals[k][0];
+			ny += sharedNormals[k][1];
+			nz += sharedNormals[k][2];
+		}
+
+		nx /= sharedNormals.length;
+		ny /= sharedNormals.length;
+		nz /= sharedNormals.length;
+		
+		normals.push(nx);
+		normals.push(ny);
+		normals.push(nz);
+	}
+	console.log(imageData);
+	console.log(vertices);
+	console.log(surfaceNormals);
+	console.log(normals);
 }
 
 	// return the number of indices in the object
