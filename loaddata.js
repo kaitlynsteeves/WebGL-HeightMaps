@@ -109,7 +109,7 @@ function calculateVertices(height,width) {
 			addToVerticesArray(row, getFromArray(row,col), col,height,width);
 			indices.push(index + 0);
 
-			addToVerticesArray(row, getFromArray(row,col+1), col+1,height,width);
+			addToVerticesArray(row+1, getFromArray(row+1,col), col,height,width);
 			indices.push(index + 1);
 
 			addToVerticesArray(row+1, getFromArray(row+1,col+1), col+1,height,width);
@@ -120,7 +120,8 @@ function calculateVertices(height,width) {
 			addToVerticesArray(row+1, getFromArray(row+1,col+1), col+1,height,width);
 			indices.push(index + 3);
 
-			addToVerticesArray(row+1, getFromArray(row+1,col), col,height,width);
+			
+			addToVerticesArray(row, getFromArray(row,col+1), col+1,height,width);
 			indices.push(index + 4);
 
 			addToVerticesArray(row, getFromArray(row,col), col,height,width);
@@ -187,11 +188,6 @@ function calculateSurfaceNormals() {
 		crossProduct[0] /= crossProductLength;
 		crossProduct[1] /= crossProductLength;
 		crossProduct[2] /= crossProductLength;
-		
-		// multiply by -1
-		crossProduct[0] *= -1;
-		crossProduct[1] *= -1;
-		crossProduct[2] *= -1;
 
 		//add to normals array for each vertex
 		surfaceNormals.push(crossProduct[0]);
