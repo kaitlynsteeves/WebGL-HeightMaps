@@ -44,7 +44,7 @@ function initGeometry() {
 	calculateSurfaceNormals();
 
 	// calculate vertex normals for height map
-	calculateVertexNormals(getMax(height,width));
+	calculateVertexNormals();
 	
 	// set the vertexCount equal to the number of indices
 	vertexCount = indices.length;
@@ -88,14 +88,6 @@ function getStepSize(height, width) {
 		return 1.0 / height;
 	else
 		return 1.0 / width;
-}
-
-	// gets the max of height and width
-function getMax(height, width) {
-	if(height > width)
-		return height;
-	else
-		return width;
 }
 
 	//calculates the vertices
@@ -207,13 +199,13 @@ function calculateSurfaceNormals() {
 }
 
 	// calculates the vertex normals
-function calculateVertexNormals(max) {
+function calculateVertexNormals() {
 	let surfaceNormals = calculateSurfaceNormals();
 	
 	for(let i = 0; i < vertices.length; i += 3){
 		let sharedNormals = [];
 
-		for(let j = i; vertices[j] <= max ; j += 3){
+		for(let j = 0; vertices[j] <= vertices.length ; j += 3){
 			// if we find a shared vertex 
 			if(vertices[j] == vertices[i] && vertices[j+1] == vertices[i + 1] && vertices[j + 2] == vertices[i + 2]) {
 				sharedNormals.push([surfaceNormals[j],surfaceNormals[j+1],surfaceNormals[j+2]]);
