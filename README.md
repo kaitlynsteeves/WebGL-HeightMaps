@@ -1,4 +1,4 @@
-# OpenGl-Height-Maps
+# WebGL-HeightMaps
 
 ## How to run:
 Start the server: $ python3 -m http.server <br>
